@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Register - Kenangan Senja</title>
+	<link rel="stylesheet" href="css/style.css" />
+	<script src="https://unpkg.com/feather-icons"></script>
+	<style>
+		.auth-container{max-width:38rem;margin:7rem auto;background:var(--card);padding:2.2rem 2.4rem;border-radius:14px;box-shadow:0 10px 28px -6px rgba(0,0,0,.15)}
+		.auth-container h2{margin:0 0 1rem;font-size:1.8rem}
+		.auth-field{display:block;width:100%;margin:.75rem 0;padding:.9rem .95rem;border:1px solid rgba(0,0,0,.12);border-radius:10px;background:var(--bg-alt)}
+		.btn-primary{background:var(--primary);color:#fff;padding:.85rem 1.2rem;border:none;border-radius:10px;cursor:pointer;font-weight:600}
+		.muted{color:var(--muted);font-size:.85rem;margin-top:.9rem;line-height:1.3}
+	</style>
+</head>
+<body>
+	<nav class="navbar">
+		<a href="index.html" class="navbar-logo">kenangan<span>senja</span>.</a>
+		<div class="navbar-extra">
+			<a href="admin-menu.html">Admin Menu</a>
+			<a href="#" id="theme-toggle">Tema</a>
+		</div>
+	</nav>
+
+	<main class="auth-container">
+		<div id="access-denied" class="hidden" style="text-align:center;padding:2rem;">
+			<h2 style="color:var(--danger);margin-bottom:1rem;">⚠️ Akses Ditolak</h2>
+			<p class="muted" style="font-size:1.1rem;">Halaman ini hanya dapat diakses oleh Admin.<br>Silakan login sebagai admin terlebih dahulu.</p>
+			<a href="login.html" class="btn-primary" style="display:inline-block;margin-top:1.5rem;text-decoration:none;">Kembali ke Login</a>
+		</div>
+		<div id="register-form-container" class="hidden">
+			<h2>Buat Akun Baru</h2>
+			<p class="muted" style="margin-bottom:1.5rem;">Anda login sebagai Admin. Anda dapat mendaftarkan user baru.</p>
+			<form id="reg-form">
+				<input id="username" class="auth-field" placeholder="Username" required />
+				<input id="email" class="auth-field" type="email" placeholder="Email (opsional)" />
+				<input id="password" class="auth-field" type="password" placeholder="Password" required />
+				<select id="role" class="auth-field" aria-label="Role">
+					<option value="member" selected>Member</option>
+					<option value="admin">Admin</option>
+				</select>
+				<button type="submit" class="btn-primary">Daftar User Baru</button>
+				<a href="admin-menu.html" style="display:block;text-align:center;margin-top:1rem;color:var(--primary);">Kembali ke Admin Menu</a>
+			</form>
+		</div>
+	</main>
+
+	<script src="js/auth-ui.js"></script>
+	<script>
+		feather.replace();
+		function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('kk_theme',t);} (function(){const s=localStorage.getItem('kk_theme')||'light';applyTheme(s);const tt=document.getElementById('theme-toggle');if(tt){tt.addEventListener('click',e=>{e.preventDefault();const c=document.documentElement.getAttribute('data-theme')||'light';applyTheme(c==='light'?'dark':'light');});}})();
+		
+		// Proteksi: hanya admin yang bisa akses halaman register
+		(function(){
+			const user = JSON.parse(localStorage.getItem('kk_user') || 'null');
+			if(!user || user.role !== 'admin'){
+				document.getElementById('access-denied').classList.remove('hidden');
+			} else {
+				document.getElementById('register-form-container').classList.remove('hidden');
+			}
+		})();
+		
+		const API_BASE = (function(){
+			try{ const stored = localStorage.getItem('kk_api_base'); if(stored) return stored; }catch(_e){}
+			const host = location.hostname || '127.0.0.1';
+			const isPrivateHost = host==='localhost' || host==='127.0.0.1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+			const hasHttpOrigin = location.origin && !location.origin.startsWith('file://');
+			if(hasHttpOrigin){
+				if(isPrivateHost && location.port && location.port !== '8000') return `http://${host}:8000`;
+				return location.origin;
+			}
+			return `http://${host}:8000`;
+		})();
+		document.getElementById('reg-form').addEventListener('submit', async e => {
+			e.preventDefault();
+			const username = document.getElementById('username').value.trim();
+			const email = document.getElementById('email').value.trim();
+			const password = document.getElementById('password').value;
+			const role = document.getElementById('role').value;
+			if(!username || !password){ alert('Username & password wajib.'); return; }
+			try {
+				const res = await fetch(`${API_BASE}/api/auth/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username, email: email || undefined, password, role }) });
+				if(!res.ok){
+					if(res.status===409) throw new Error('Username sudah dipakai.');
+					throw new Error('Gagal daftar. Kode: '+res.status);
+				}
+				// Berhasil mendaftarkan user baru
+				alert(`User "${username}" dengan role "${role}" berhasil didaftarkan!`);
+				// Reset form
+				document.getElementById('reg-form').reset();
+				// Bisa tetap di halaman untuk daftar user lain, atau redirect ke admin menu
+				// window.location.href='admin-menu.html';
+			} catch(err){ alert(err.message); }
+		});
+	</script>
+</body>
+</html>
+

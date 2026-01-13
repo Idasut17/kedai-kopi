@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pengaturan - Kenangan Senja</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script>
+    (function bootstrapTheme(){
+      try{
+        const saved = localStorage.getItem('kk_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+      }catch(_){}
+    })();
+  </script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    body.settings-page{min-height:100vh;padding-top:5.8rem;background:linear-gradient(150deg,rgba(var(--primary-rgb),0.12) 0%,rgba(15,23,42,0.08) 45%,var(--bg) 100%)}
+    .settings-shell{max-width:960px;margin:6rem auto 5.5rem;padding:0 1.6rem}
+    .settings-header{background:var(--bg-alt);border-radius:28px;padding:2.4rem 2.8rem;box-shadow:0 28px 64px rgba(15,23,42,0.18);position:relative;overflow:hidden}
+    .settings-header::after{content:"";position:absolute;inset:0;border-radius:28px;background:radial-gradient(ellipse at top right,rgba(var(--primary-rgb),0.28),transparent 55%);opacity:0.7;pointer-events:none}
+    .settings-header>*{position:relative;z-index:1}
+    .settings-header h1{margin:0 0 0.8rem;font-size:2.4rem;font-weight:600;letter-spacing:0.75px}
+    .settings-header p{margin:0;color:var(--muted);font-size:0.98rem;max-width:520px;line-height:1.6}
+    .settings-section{margin-top:2.4rem;background:var(--card);border-radius:24px;padding:2rem 2.2rem;box-shadow:0 24px 58px rgba(15,23,42,0.16);border:1px solid rgba(var(--primary-rgb),0.16)}
+    .settings-section h2{margin:0 0 1.2rem;font-size:1.5rem;font-weight:600;letter-spacing:0.5px}
+    .settings-section h3{margin:0 0 0.8rem;font-size:1.2rem;font-weight:600}
+    .settings-section p.section-note{margin:-0.4rem 0 1.5rem;color:var(--muted);font-size:0.92rem}
+    .theme-options{display:flex;flex-wrap:wrap;gap:1rem}
+    .theme-card{flex:1 1 260px;display:flex;align-items:center;gap:0.8rem;padding:1rem 1.2rem;border-radius:18px;background:rgba(var(--primary-rgb),0.08);border:1px solid transparent;cursor:pointer;transition:all 0.2s ease}
+    .theme-card input{accent-color:var(--primary);width:18px;height:18px}
+    .theme-card span{font-weight:600;font-size:1rem}
+    .theme-card small{display:block;color:var(--muted);font-weight:500;font-size:0.85rem}
+    .theme-card:has(input:checked){border-color:rgba(var(--primary-rgb),0.55);background:rgba(var(--primary-rgb),0.16);box-shadow:0 18px 40px rgba(var(--primary-rgb),0.18)}
+    .info-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem;margin-top:1.2rem}
+    .info-item{display:flex;gap:0.9rem;align-items:flex-start;padding:1rem 1.2rem;border-radius:18px;background:rgba(var(--primary-rgb),0.08);border:1px solid rgba(var(--primary-rgb),0.18);box-shadow:0 16px 36px rgba(15,23,42,0.12)}
+    .info-item i{width:20px;height:20px;color:var(--primary);margin-top:0.2rem}
+    .info-item strong{display:block;font-size:0.95rem;font-weight:600;margin-bottom:0.25rem}
+    .info-item span{font-size:0.9rem;color:var(--muted);line-height:1.5}
+    .settings-role{display:inline-flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;border-radius:999px;background:rgba(var(--primary-rgb),0.12);color:var(--primary);font-weight:600;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.6px}
+    .admin-hint{margin-top:1.4rem;padding:1.2rem 1.4rem;border-radius:18px;border:1px dashed rgba(var(--primary-rgb),0.35);color:var(--muted);background:rgba(var(--primary-rgb),0.08);font-size:0.92rem}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.4rem}
+    .form-field{display:flex;flex-direction:column;gap:0.45rem;position:relative}
+    .form-field label{font-weight:600;font-size:0.92rem;color:var(--text);display:flex;align-items:center;gap:0.5rem}
+    .form-field label i{width:16px;height:16px;color:var(--primary)}
+    .form-field input,.form-field textarea,.form-field select{padding:1rem 1.1rem;padding-left:2.8rem;border-radius:16px;border:2px solid rgba(var(--primary-rgb),0.15);background:linear-gradient(135deg,rgba(255,255,255,0.98),rgba(var(--primary-rgb),0.04));font-size:0.98rem;transition:all 0.3s ease;box-shadow:0 4px 12px rgba(15,23,42,0.05)}
+    .form-field textarea{min-height:120px;resize:vertical;padding-left:1.1rem}
+    .form-field select{padding-left:1.1rem;cursor:pointer}
+    .form-field input:focus,.form-field textarea:focus,.form-field select:focus{border-color:rgba(var(--primary-rgb),0.75);background:rgba(255,255,255,1);box-shadow:0 8px 24px rgba(var(--primary-rgb),0.2),0 0 0 4px rgba(var(--primary-rgb),0.1);outline:none;transform:translateY(-2px)}
+    .form-field input:hover,.form-field textarea:hover,.form-field select:hover{border-color:rgba(var(--primary-rgb),0.35);box-shadow:0 6px 18px rgba(15,23,42,0.08)}
+    .form-field-icon{position:absolute;left:1rem;top:2.2rem;color:var(--primary);opacity:0.6;pointer-events:none}
+    .form-field-icon i{width:18px;height:18px}
+    .form-field small{font-size:0.82rem;color:var(--muted);line-height:1.4;margin-top:0.2rem;display:flex;align-items:flex-start;gap:0.4rem}
+    .form-field small i{width:14px;height:14px;margin-top:0.1rem;flex-shrink:0}
+    .form-field.full-width{grid-column:1 / -1}
+    .form-actions{margin-top:1.8rem;display:flex;flex-wrap:wrap;gap:1rem;justify-content:flex-end;align-items:center}
+    .btn-primary{display:inline-flex;align-items:center;gap:0.6rem;padding:1rem 2rem;border-radius:18px;background:linear-gradient(135deg,var(--primary),rgba(var(--primary-rgb),0.85));color:#fff;font-weight:600;font-size:1rem;border:none;cursor:pointer;box-shadow:0 12px 32px rgba(var(--primary-rgb),0.35);transition:all 0.3s ease;position:relative;overflow:hidden}
+    .btn-primary::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent);opacity:0;transition:opacity 0.3s ease}
+    .btn-primary:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 16px 40px rgba(var(--primary-rgb),0.45)}
+    .btn-primary:hover::before{opacity:1}
+    .btn-primary:active{transform:translateY(-1px) scale(0.98)}
+    .btn-primary i{width:20px;height:20px}
+    .btn-secondary{display:inline-flex;align-items:center;gap:0.6rem;padding:1rem 1.8rem;border-radius:18px;background:rgba(var(--primary-rgb),0.12);color:var(--primary);font-weight:600;font-size:0.95rem;border:2px solid rgba(var(--primary-rgb),0.25);cursor:pointer;transition:all 0.3s ease}
+    .btn-secondary:hover{background:rgba(var(--primary-rgb),0.2);border-color:rgba(var(--primary-rgb),0.45);transform:translateY(-2px);box-shadow:0 8px 20px rgba(var(--primary-rgb),0.2)}
+    .form-status{margin-top:0.6rem;font-size:0.9rem;font-weight:600;padding:0.8rem 1.2rem;border-radius:12px;display:none;align-items:center;gap:0.5rem}
+    .form-status i{width:18px;height:18px}
+    .form-status.loading{display:flex;color:var(--primary);background:rgba(var(--primary-rgb),0.12);border:1px solid rgba(var(--primary-rgb),0.25)}
+    .form-status.success{display:flex;color:#16a34a;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.25)}
+    .form-status.error{display:flex;color:#dc2626;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.25)}
+    .hidden{display:none !important}
+    .pulse{animation:pulse 2s cubic-bezier(0.4,0,0.6,1) infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    @media(max-width:640px){
+      .settings-header{padding:2rem 1.8rem}
+      .settings-section{padding:1.6rem 1.4rem}
+      .theme-card{flex:1 1 100%}
+      .form-field input,.form-field textarea,.form-field select{font-size:16px}
+      .btn-primary{width:100%;justify-content:center}
+    }
+  </style>
+</head>
+<body class="settings-page">
+  <nav class="navbar">
+    <a href="index.html" class="navbar-logo">kenangan<span>senja</span>.</a>
+    <div class="navbar-extra"></div>
+  </nav>
+
+  <main class="settings-shell">
+    <header class="settings-header">
+      <h1>Pengaturan</h1>
+      <p>Kelola preferensi tampilan dan informasi outlet. Setiap perubahan disimpan otomatis ke server untuk admin.</p>
+    </header>
+
+    <section class="settings-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+        <div>
+          <h2>Tema Aplikasi</h2>
+          <p class="section-note">Pilih tema terang atau gelap sesuai kenyamanan. Preferensi ini tersimpan di perangkat.</p>
+        </div>
+        <span class="settings-role" data-role-badge>Guest</span>
+      </div>
+      <div class="theme-options" role="radiogroup" aria-label="Pilih tema">
+        <label class="theme-card">
+          <input type="radio" name="theme-option" value="light" />
+          <div>
+            <span>Terang</span>
+            <small>Warna cerah dengan kontras tinggi.</small>
+          </div>
+        </label>
+        <label class="theme-card">
+          <input type="radio" name="theme-option" value="dark" />
+          <div>
+            <span>Gelap</span>
+            <small>Ideal untuk penggunaan malam hari.</small>
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <section class="settings-section">
+      <h2>Informasi Kontak & Alamat</h2>
+      <p class="section-note">Detail berikut ditampilkan kepada pengunjung dan pelanggan. Pastikan selalu akurat.</p>
+      <div class="info-board" id="profile-display">
+        <div class="info-item">
+          <i data-feather="phone"></i>
+          <div>
+            <strong>Kontak</strong>
+            <span>Belum disetel</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <i data-feather="map-pin"></i>
+          <div>
+            <strong>Alamat</strong>
+            <span>Belum disetel</span>
+          </div>
+        </div>
+      </div>
+      
+      <div id="map-preview-container" style="margin-top:1.5rem;display:none;">
+        <h3 style="font-size:1.1rem;margin-bottom:0.8rem;color:var(--text);">Preview Map</h3>
+        <div style="border-radius:18px;overflow:hidden;border:1px solid rgba(var(--primary-rgb),0.2);box-shadow:0 16px 36px rgba(15,23,42,0.12);">
+          <iframe id="map-preview" src="" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width:100%;height:300px;border:none;"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <p class="admin-hint hidden" id="admin-hint">Masuk sebagai admin untuk mengubah informasi kontak dan alamat.</p>
+
+    <section class="settings-section" id="register-section" style="display:none;">
+      <h3>Kelola Pengguna (Admin)</h3>
+      <p class="section-note">Daftarkan pengguna baru dengan role Member atau Admin.</p>
+      <form id="register-form">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="reg-username"><i data-feather="user"></i>Username <span style="color:#dc2626;">*</span></label>
+            <span class="form-field-icon"><i data-feather="user"></i></span>
+            <input type="text" id="reg-username" placeholder="masukkan username" required />
+          </div>
+          <div class="form-field">
+            <label for="reg-email"><i data-feather="mail"></i>Email</label>
+            <span class="form-field-icon"><i data-feather="mail"></i></span>
+            <input type="email" id="reg-email" placeholder="email@domain.com" />
+          </div>
+          <div class="form-field">
+            <label for="reg-password"><i data-feather="lock"></i>Password <span style="color:#dc2626;">*</span></label>
+            <span class="form-field-icon"><i data-feather="lock"></i></span>
+            <input type="password" id="reg-password" placeholder="password minimal 6 karakter" required />
+          </div>
+          <div class="form-field">
+            <label for="reg-role"><i data-feather="shield"></i>Role</label>
+            <select id="reg-role">
+              <option value="member" selected>Member</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="document.getElementById('register-form').reset();">
+            <i data-feather="x"></i>
+            <span>Reset</span>
+          </button>
+          <button type="submit" class="btn-primary">
+            <i data-feather="user-plus"></i>
+            <span>Daftar User Baru</span>
+          </button>
+        </div>
+        <p class="form-status" id="register-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="settings-section" id="admin-settings">
+      <h3>Kelola Informasi Outlet</h3>
+      <p class="section-note">Perubahan yang disimpan akan berlaku untuk seluruh pengunjung situs.</p>
+      <form id="profile-form">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="contact-phone"><i data-feather="phone"></i>Nomor Telepon</label>
+            <span class="form-field-icon"><i data-feather="phone"></i></span>
+            <input type="text" id="contact-phone" name="phone" placeholder="+62 812-3456-7890" />
+          </div>
+          <div class="form-field">
+            <label for="contact-email"><i data-feather="mail"></i>Email</label>
+            <span class="form-field-icon"><i data-feather="mail"></i></span>
+            <input type="email" id="contact-email" name="email" placeholder="halo@kenangansenja.id" />
+          </div>
+          <div class="form-field">
+            <label for="contact-wa"><i data-feather="message-circle"></i>WhatsApp / Hotline</label>
+            <span class="form-field-icon"><i data-feather="message-circle"></i></span>
+            <input type="text" id="contact-wa" name="whatsapp" placeholder="https://wa.me/6281234567890" />
+          </div>
+          <div class="form-field full-width">
+            <label for="contact-address"><i data-feather="map-pin"></i>Alamat Kafe</label>
+            <textarea id="contact-address" name="address" placeholder="Jl. Kenangan No. 123, Jakarta Selatan"></textarea>
+          </div>
+          <div class="form-field full-width">
+            <label for="contact-map"><i data-feather="map"></i>Google Maps Embed URL</label>
+            <span class="form-field-icon"><i data-feather="map"></i></span>
+            <input type="url" id="contact-map" name="mapUrl" placeholder="https://www.google.com/maps/embed?pb=..." />
+            <small style="color:#dc2626;font-weight:600;">
+              <i data-feather="alert-triangle"></i>
+              <span><strong>PENTING:</strong> URL seperti "https://maps.app.goo.gl/..." atau "https://www.google.com/" TIDAK BISA digunakan!</span>
+            </small>
+            <small>
+              <i data-feather="info"></i>
+              <span><strong>Cara yang BENAR:</strong></span>
+            </small>
+            <small style="margin-left:1.5rem;display:block;">
+              <span>1. Buka Google Maps di komputer (bukan HP)</span><br>
+              <span>2. Cari lokasi kafe → Klik tombol <strong>"Share"</strong></span><br>
+              <span>3. Pilih tab <strong>"Embed a map"</strong> (bukan "Send a link")</span><br>
+              <span>4. Klik <strong>"COPY HTML"</strong></span><br>
+              <span>5. Paste di Notepad, cari bagian src="<strong>https://www.google.com/maps/embed?pb=...</strong>"</span><br>
+              <span>6. Copy URL tersebut (harus dimulai dengan https://www.google.com/maps/embed)</span>
+            </small>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="location.reload();">
+            <i data-feather="refresh-cw"></i>
+            <span>Batal</span>
+          </button>
+          <button type="submit" class="btn-primary">
+            <i data-feather="save"></i>
+            <span>Simpan Pengaturan</span>
+          </button>
+        </div>
+        <p class="form-status" id="profile-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/auth-ui.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>
+
+

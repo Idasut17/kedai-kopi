@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Kopi Kenangan Senja</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+      .dash-wrap{max-width:1000px;margin:6rem auto;padding:2rem}
+      .dash-card{background:var(--card);padding:1.4rem;border-radius:12px;box-shadow:0 8px 24px rgba(43,43,43,0.06);margin-bottom:1.4rem}
+      .dash-actions{display:flex;gap:1rem;justify-content:flex-end}
+      .overlay-controls{justify-content:flex-start;margin-top:.6rem}
+      .banner{background-image:url('img/header-bg.jpeg');background-size:cover;background-position:center;position:relative;overflow:hidden;color:#ffffff;} 
+      .banner::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,var(--overlay-alpha));mix-blend-mode:normal;border-radius:12px;}
+      .banner > * {position:relative;z-index:1;}
+      .banner h3{color:#ffffff;font-size:1.8rem;margin-bottom:0.5rem;}
+      .banner .muted-note{color:#e0e0e0;opacity:0.95;}
+      .banner .btn{background:#b6895b;color:#fff;border:none;padding:0.75rem 1.5rem;border-radius:6px;text-decoration:none;display:inline-block;font-weight:600;}
+      .banner .btn:hover{background:#9d7048;transform:scale(1.05);}
+      .overlay-controls label{color:#e0e0e0;}
+      .overlay-controls #overlay-value{color:#ffffff;font-weight:600;}
+      [data-theme='dark'] .banner::before{background:rgba(0,0,0,var(--overlay-alpha));}
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html" class="navbar-logo">kenangan<span>senja</span>.</a>
+      <div class="navbar-extra">
+        <a href="#" id="logout-btn">Logout</a>
+        <a href="#" id="theme-toggle" title="Tema">Tema</a>
+      </div>
+    </nav>
+
+    <main class="dash-wrap">
+      <div class="dash-card">
+        <h2 id="welcome">Welcome</h2>
+  <p id="welcome-sub" class="muted-note"></p>
+      </div>
+
+      <div class="dash-card banner" id="role-section">
+        <h3 id="role-title">Ringkasan</h3>
+  <p id="role-desc" class="muted-note"></p>
+        <div class="dash-actions" id="role-actions">
+          <a href="index.html" class="btn">Beranda</a>
+        </div>
+        <div class="dash-actions overlay-controls">
+          <label for="overlay-range" class="muted-note">Transparansi Background</label>
+          <input type="range" id="overlay-range" min="0" max="0.9" step="0.05" />
+          <span id="overlay-value" class="muted-note"></span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Contact Section start -->
+    <section id="contact" class="contact">
+      <h2><span>Kontak</span> Kami</h2>
+      <p id="contact-desc">Hubungi kami untuk informasi lebih lanjut atau kunjungi lokasi kami.</p>
+
+      <div class="contact-info" id="contact-info"></div>
+
+      <div class="row">
+        <iframe
+          src="about:blank"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
+
+        <form id="contact-form" onsubmit="return false;">
+          <div class="input-group">
+            <i data-feather="message-square"></i>
+            <textarea id="contact-message" placeholder="Tulis pesan untuk dikirim via WhatsApp" rows="3"></textarea>
+          </div>
+          <button type="button" class="btn" id="contact-wa-btn">Kirim ke WhatsApp</button>
+        </form>
+      </div>
+    </section>
+    <!-- Contact Section end -->
+
+    <script>
+      feather.replace();
+      // Unregister any old service workers to prevent preloadResponse warnings
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations()
+          .then(regs => regs.forEach(reg => reg.unregister()))
+          .catch(err => console.warn('SW unregister failed', err));
+      }
+      // Protect page: redirect to login if not authenticated
+      const user = JSON.parse(localStorage.getItem('kk_user') || 'null');
+      if(!user || !user.token){
+        window.location.href = 'login.html';
+      } else {
+        document.getElementById('welcome').textContent = 'Halo, ' + (user.username || 'User') + '!';
+        document.getElementById('welcome-sub').textContent = 'Role: ' + (user.role || 'guest');
+        const roleTitle = document.getElementById('role-title');
+        const roleDesc = document.getElementById('role-desc');
+        const roleActions = document.getElementById('role-actions');
+        if(user.role === 'admin'){
+          roleTitle.textContent = 'Admin Panel';
+          roleDesc.textContent = 'Anda dapat mengelola menu kopi: tambah, ubah, hapus.';
+          const link = document.createElement('a');
+          link.href = 'admin-menu.html';
+          link.className = 'btn';
+          link.textContent = 'Kelola Menu';
+          roleActions.prepend(link);
+        } else {
+          roleTitle.textContent = 'Member Area';
+          roleDesc.textContent = 'Anda dapat melihat menu & produk kopi kami.';
+          const link = document.createElement('a');
+          link.href = 'menu-member.html';
+          link.className = 'btn';
+          link.textContent = 'Lihat Menu Kopi';
+          roleActions.prepend(link);
+        }
+      }
+
+      document.getElementById('logout-btn').addEventListener('click', function(e){
+        e.preventDefault();
+        localStorage.removeItem('kk_user');
+        window.location.href = 'index.html';
+      });
+
+      // Overlay transparency controller (persisted)
+      (function(){
+        const range = document.getElementById('overlay-range');
+        const out = document.getElementById('overlay-value');
+        const saved = localStorage.getItem('kk_overlay');
+        const initial = saved ? parseFloat(saved) : parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--overlay-alpha')) || 0.35;
+        document.documentElement.style.setProperty('--overlay-alpha', initial);
+        range.value = initial.toFixed(2);
+        out.textContent = initial.toFixed(2);
+        range.addEventListener('input', function(){
+          const v = parseFloat(this.value) || 0;
+          document.documentElement.style.setProperty('--overlay-alpha', v);
+          localStorage.setItem('kk_overlay', v);
+          out.textContent = v.toFixed(2);
+        });
+      })();
+    </script>
+
+    <script>
+      const API_BASE = (function(){
+        try{ const stored = localStorage.getItem('kk_api_base'); if(stored) return stored; }catch(_e){}
+        const host = location.hostname || '127.0.0.1';
+        const isPrivateHost = host==='localhost' || host==='127.0.0.1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+        const hasHttpOrigin = location.origin && !location.origin.startsWith('file://');
+        if(hasHttpOrigin){
+          if(isPrivateHost && location.port && location.port !== '8000') return `http://${host}:8000`;
+          return location.origin;
+        }
+        return `http://${host}:8000`;
+      })();
+
+      // Load map URL from database
+      async function loadMapUrl() {
+        try {
+          const token = localStorage.getItem('token') || (JSON.parse(localStorage.getItem('kk_user') || '{}').token);
+          const response = await fetch(`${API_BASE}/api/settings/site_profile`, {
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data && data.value && data.value.mapUrl) {
+              const mapIframe = document.querySelector('.contact .map');
+              if (mapIframe) {
+                mapIframe.src = data.value.mapUrl;
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error loading map URL:', error);
+        }
+      }
+
+      async function loadContactInfo(){
+        try {
+          const token = localStorage.getItem('token') || (JSON.parse(localStorage.getItem('kk_user') || '{}').token);
+          const res = await fetch(`${API_BASE}/api/settings/site_profile`, {
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+          });
+          if(!res.ok) return;
+          const data = await res.json();
+          const profile = (data && data.value) || {};
+          const infoEl = document.getElementById('contact-info');
+          const descEl = document.getElementById('contact-desc');
+          const waBtn = document.getElementById('contact-wa-btn');
+          const msgInput = document.getElementById('contact-message');
+          if(descEl){
+            descEl.textContent = profile.address ? `Kunjungi kami di ${profile.address} atau hubungi kontak berikut.` : 'Hubungi kami untuk informasi lebih lanjut atau kunjungi lokasi kami.';
+          }
+          if(infoEl){
+            const items = [
+              {icon:'phone', label:'Telepon', value: profile.phone},
+              {icon:'mail', label:'Email', value: profile.email},
+              {icon:'message-circle', label:'WhatsApp', value: profile.whatsapp},
+              {icon:'map-pin', label:'Alamat', value: profile.address}
+            ].filter(i=>i.value);
+            infoEl.innerHTML = items.length ? items.map(i=>`
+              <div class="info-item">
+                <i data-feather="${i.icon}"></i>
+                <div>
+                  <strong>${i.label}</strong>
+                  <span>${i.value}</span>
+                </div>
+              </div>
+            `).join('') : '<div class="info-item">Kontak belum disetel admin.</div>';
+            if(window.feather) feather.replace();
+          }
+          if(waBtn){
+            const waNumber = (profile.whatsapp || '').replace(/[^\d]/g,'');
+            waBtn.onclick = ()=>{
+              if(!waNumber){
+                alert('Nomor WhatsApp belum disetel admin.');
+                return;
+              }
+              const msg = (msgInput && msgInput.value.trim()) || 'Halo, saya ingin bertanya tentang produk.';
+              const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
+              window.open(url, '_blank');
+            };
+          }
+        } catch (e) {
+          console.error('Error loading contact info:', e);
+        }
+      }
+
+      // Load map when page loads
+      window.addEventListener('DOMContentLoaded', loadMapUrl);
+      window.addEventListener('DOMContentLoaded', loadContactInfo);
+    </script>
+  </body>
+</html>

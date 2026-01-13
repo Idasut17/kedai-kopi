@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Kopi Kenangan Senja</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+  <body class="auth-page">
+    <nav class="navbar">
+      <a href="index.html" class="navbar-logo">kenangan<span>senja</span>.</a>
+      <div class="navbar-extra">
+        <a href="index.html" title="Beranda" aria-label="Beranda"><i data-feather="home"></i></a>
+        <a href="#" id="theme-toggle" title="Tema">Tema</a>
+      </div>
+    </nav>
+
+    <main class="auth-shell">
+      <section class="auth-card">
+        <header class="auth-header">
+          <p class="auth-tagline">Selamat datang kembali</p>
+          <h1>Masuk ke Dashboard</h1>
+          <p class="auth-subtitle">
+            Nikmati pengalaman mengelola kedai kopi dengan tampilan gelap yang nyaman di mata.
+          </p>
+        </header>
+
+        <form id="login-form" class="auth-form" aria-describedby="auth-helptext">
+          <div class="auth-field-group">
+            <label for="username">Username</label>
+            <div class="auth-input-wrapper">
+              <i data-feather="user"></i>
+              <input
+                class="auth-field"
+                id="username"
+                name="username"
+                placeholder="Contoh: admin"
+                autocomplete="username"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="auth-field-group">
+            <label for="password">Password</label>
+            <div class="auth-input-wrapper">
+              <i data-feather="lock"></i>
+              <input
+                class="auth-field"
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Masukkan password"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+          </div>
+
+          <button class="btn-auth-primary" type="submit">
+            <span>Login</span>
+            <i data-feather="arrow-right"></i>
+          </button>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      feather.replace();
+      const API_BASE = (function () {
+        // Support sharing a single ngrok link that auto-configures the API base.
+        // Example: https://<web>.ngrok-free.app/login.html?api=https://<api>.ngrok-free.app
+        try {
+          const params = new URLSearchParams(location.search || '');
+          const fromQuery = params.get('api') || params.get('api_base') || params.get('kk_api_base');
+          if (fromQuery && /^https?:\/\//i.test(fromQuery)) {
+            localStorage.setItem('kk_api_base', fromQuery.replace(/\/$/, ''));
+          }
+        } catch (_e) {}
+
+        try {
+          const stored = localStorage.getItem('kk_api_base');
+          if (stored) return stored;
+        } catch (_e) {}
+
+        const isNgrokHost = /(^|\.)ngrok(-free)?\.app$/i.test(location.hostname) || /(^|\.)ngrok\.io$/i.test(location.hostname);
+        if (isNgrokHost) {
+          // When the frontend is served via ngrok, the API is typically a different ngrok URL.
+          // Force the user to set kk_api_base to avoid calling the frontend tunnel and parsing HTML as JSON.
+          return location.origin;
+        }
+
+        const host = location.hostname || '127.0.0.1';
+        const isPrivateHost =
+          host === 'localhost' ||
+          host === '127.0.0.1' ||
+          /^10\./.test(host) ||
+          /^192\.168\./.test(host) ||
+          /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+
+        const hasHttpOrigin = location.origin && !location.origin.startsWith('file://');
+        if (hasHttpOrigin) {
+          if (isPrivateHost && location.port && location.port !== '8000') {
+            return `http://${host}:8000`;
+          }
+          return location.origin;
+        }
+
+        return `http://${host}:8000`;
+      })();
+      document
+        .getElementById('login-form')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault();
+          const username = document.getElementById('username').value.trim();
+          const password = document.getElementById('password').value;
+          try {
+            const res = await fetch(`${API_BASE}/api/auth/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, password }),
+            });
+            if (!res.ok) {
+              if (res.status === 401) {
+                throw new Error('Username atau password salah.');
+              }
+              throw new Error('Gagal login. Kode: ' + res.status);
+            }
+
+            const contentType = (res.headers.get('content-type') || '').toLowerCase();
+            if (!contentType.includes('application/json')) {
+              const bodyText = await res.text();
+              const isNgrokHost = /(^|\.)ngrok(-free)?\.app$/i.test(location.hostname) || /(^|\.)ngrok\.io$/i.test(location.hostname);
+              if (isNgrokHost) {
+                throw new Error(
+                  'API tidak mengembalikan JSON. Jika pakai ngrok, set `localStorage.kk_api_base` ke URL ngrok API (port 8000), lalu reload. Pastikan `ngrok start --all` masih jalan.'
+                );
+              }
+              throw new Error('Server tidak mengembalikan JSON. Response: ' + bodyText.slice(0, 80));
+            }
+
+            const data = await res.json();
+            // data: { token, user: { id, username, role } }
+            const payload = {
+              id: data.user?.id,
+              username: data.user?.username,
+              role: data.user?.role,
+              token: data.token,
+            };
+            localStorage.setItem('kk_user', JSON.stringify(payload));
+            // Redirect sesuai role
+            if (payload.role === 'admin') {
+              window.location.href = 'admin-menu.html';
+            } else {
+              window.location.href = 'menu-member.html';
+            }
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+    </script>
+  </body>
+</html>

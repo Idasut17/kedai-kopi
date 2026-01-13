@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kelola Menu - Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="js/auth-ui.js"></script>
+  <style>
+    body.admin-page{min-height:100vh;padding-top:5.6rem;background:linear-gradient(140deg,rgba(var(--primary-rgb),0.16) 0%,rgba(15,23,42,0.08) 42%,var(--bg) 100%)}
+    .admin-panel{max-width:100%;width:95%;margin:2rem auto 3rem;padding:1.5rem;background:var(--bg-alt);border-radius:28px;box-shadow:0 32px 88px rgba(15,23,42,0.18);position:relative;overflow:hidden;box-sizing:border-box}
+    .admin-panel::before{content:"";position:absolute;inset:0;border-radius:30px;background:radial-gradient(ellipse at top right,rgba(var(--primary-rgb),0.32),transparent 55%);opacity:0.6;pointer-events:none}
+    .admin-panel h2{position:relative;font-size:clamp(1.5rem,4vw,2.2rem);margin:0 0 1.5rem;font-weight:600;letter-spacing:0.8px}
+    .menu-toolbar{position:relative;display:flex;flex-wrap:wrap;gap:0.8rem;align-items:stretch;background:rgba(var(--primary-rgb),0.08);border:1px solid rgba(var(--primary-rgb),0.2);border-radius:22px;padding:1rem;box-shadow:0 20px 48px rgba(15,23,42,0.1);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+    .menu-toolbar input,.menu-toolbar select{flex:1 1 100%;min-width:0;padding:1rem 1.3rem;border:1px solid rgba(15,23,42,0.15);border-radius:16px;background:rgba(255,255,255,0.95);box-shadow:inset 0 1px 3px rgba(15,23,42,0.06);font-size:1.05rem;font-weight:500;color:var(--text);transition:box-shadow 0.2s ease,border-color 0.2s ease;box-sizing:border-box}
+    .menu-toolbar input:focus,.menu-toolbar select:focus{outline:none;border-color:rgba(var(--primary-rgb),0.7);box-shadow:0 0 0 3px rgba(var(--primary-rgb),0.18)}
+    .menu-toolbar select{max-width:100%;font-weight:600}
+    .toolbar-actions{display:flex;flex-wrap:wrap;gap:0.6rem;width:100%;margin-top:0.5rem}
+    .btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;border:1px solid rgba(var(--primary-rgb),0.38);background:rgba(var(--primary-rgb),0.14);color:var(--primary);padding:0.8rem 1.2rem;border-radius:16px;cursor:pointer;font-weight:600;font-size:0.95rem;transition:all 0.2s ease;flex:1 1 auto;min-width:0;white-space:nowrap}
+    .btn-outline:hover{background:var(--primary);color:#fff;box-shadow:0 14px 32px rgba(var(--primary-rgb),0.35)}
+    .admin-items{position:relative;margin-top:1.8rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%, 280px),1fr));gap:1.2rem}
+    .admin-item{position:relative;padding:1.3rem;border-radius:26px;background:linear-gradient(160deg,rgba(var(--primary-rgb),0.18),rgba(15,23,42,0.06));border:1px solid rgba(var(--primary-rgb),0.22);box-shadow:0 26px 56px rgba(15,23,42,0.18);display:flex;flex-direction:column;gap:1.2rem;overflow:hidden;transition:transform 0.25s ease,box-shadow 0.25s ease}
+    .admin-item::after{content:"";position:absolute;inset:1px;border-radius:24px;background:var(--card);z-index:0}
+    .admin-item>*{position:relative;z-index:1}
+    .admin-item:hover{transform:translateY(-4px);box-shadow:0 36px 72px rgba(15,23,42,0.22)}
+    .admin-thumb{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:4/3;background:rgba(15,23,42,0.06);width:100%}
+    .admin-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 0.35s ease}
+    .admin-item:hover .admin-thumb img{transform:scale(1.05)}
+    .admin-price-pill{position:absolute;right:0.8rem;bottom:0.8rem;display:inline-flex;align-items:center;gap:0.35rem;padding:0.5rem 0.9rem;border-radius:999px;background:rgba(15,23,42,0.85);color:#fff;font-weight:600;font-size:0.9rem;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 12px 24px rgba(15,23,42,0.25)}
+    .admin-item-body{display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap}
+    .admin-item-body h4{margin:0 0 0.3rem;font-size:clamp(1rem,3vw,1.15rem);font-weight:600;letter-spacing:0.4px;word-break:break-word}
+    .admin-item-subtitle{margin:0;font-size:0.88rem;color:var(--muted);letter-spacing:0.3px}
+    .chip{display:inline-flex;align-items:center;padding:0.4rem 0.8rem;border-radius:999px;background:rgba(var(--primary-rgb),0.16);color:var(--primary);font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap}
+    .admin-item-actions{display:flex;flex-wrap:wrap;gap:0.5rem;width:100%}
+    .btn-pill{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.7rem 1rem;border-radius:16px;background:rgba(var(--primary-rgb),0.08);border:1px solid rgba(var(--primary-rgb),0.2);cursor:pointer;font-weight:600;color:var(--text);transition:all 0.22s ease;min-width:0;flex:1 1 auto;font-size:0.9rem}
+    .btn-pill i{width:18px;height:18px}
+    .btn-pill:hover{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 16px 34px rgba(var(--primary-rgb),0.3)}
+    .btn-pill.danger{background:rgba(220,38,38,0.12);border-color:rgba(220,38,38,0.28);color:#b91c1c}
+    .btn-pill.danger:hover{background:#b91c1c;border-color:#991b1b;color:#fff}
+    .fab{position:fixed;bottom:1.5rem;right:1.5rem;width:auto;height:auto;padding:1rem 1.5rem;border-radius:999px;background:var(--primary);color:#fff;font-weight:600;display:flex;align-items:center;gap:0.55rem;box-shadow:0 22px 52px rgba(var(--primary-rgb),0.42);transition:transform 0.22s ease,box-shadow 0.22s ease;z-index:50;border:none;cursor:pointer}
+    .fab:hover{transform:translateY(-5px);box-shadow:0 28px 58px rgba(var(--primary-rgb),0.5)}
+    .fab i{width:22px;height:22px}
+    .modal{position:fixed;inset:0;background:rgba(15,23,42,0.48);display:none;align-items:center;justify-content:center;padding:1rem;z-index:60;overflow-y:auto}
+    .modal.open{display:flex}
+    .modal .modal-container{background:var(--bg-alt);border-radius:28px;box-shadow:0 30px 84px rgba(15,23,42,0.28);max-width:580px;width:95%;padding:1.5rem;position:relative;overflow:hidden;margin:auto;box-sizing:border-box}
+    .modal .close-icon{position:absolute;top:1rem;right:1rem;color:var(--muted);z-index:10;cursor:pointer}
+    .modal .modal-content{max-height:70vh;overflow-y:auto;padding-right:0.4rem}
+    .modal .modal-content::-webkit-scrollbar{width:6px}
+    .modal .modal-content::-webkit-scrollbar-thumb{background:rgba(15,23,42,0.18);border-radius:999px}
+    .modal-col{display:flex;flex-direction:column;gap:1.2rem}
+    .modal-header{display:flex;align-items:center;gap:0.8rem;margin-bottom:1.2rem;flex-wrap:wrap}
+    .modal-header h3{margin:0;font-size:clamp(1.3rem,4vw,1.6rem);font-weight:600}
+    .modal-subtitle{margin:0;color:var(--muted);font-size:0.88rem}
+    .icon-circle{width:48px;height:48px;min-width:48px;border-radius:18px;background:rgba(var(--primary-rgb),0.12);display:flex;align-items:center;justify-content:center;color:var(--primary)}
+    .icon-circle i{width:24px;height:24px}
+    #add-modal .menu-form{display:flex;flex-direction:column;gap:1rem}
+    .menu-form .field{display:flex;flex-direction:column;gap:0.4rem}
+    .menu-form label{font-size:0.92rem;font-weight:600;color:var(--muted)}
+    .menu-form input{padding:0.9rem 1rem;border:1px solid rgba(15,23,42,0.12);border-radius:14px;background:rgba(255,255,255,0.92);transition:border-color 0.2s ease,box-shadow 0.2s ease;font-size:1rem;box-sizing:border-box;width:100%}
+    .menu-form input:focus{border-color:rgba(var(--primary-rgb),0.65);box-shadow:0 0 0 3px rgba(var(--primary-rgb),0.18);outline:none}
+    #dropzone{border:2px dashed rgba(var(--primary-rgb),0.35);border-radius:18px;padding:1.2rem;text-align:center;color:var(--muted);font-size:0.88rem;background:rgba(var(--primary-rgb),0.08);display:flex;flex-direction:column;align-items:center;gap:0.5rem;cursor:pointer;transition:all 0.2s ease;width:100%;box-sizing:border-box}
+    #dropzone i{width:28px;height:28px;color:var(--primary)}
+    #dropzone.dragover{background:rgba(var(--primary-rgb),0.18);border-color:rgba(var(--primary-rgb),0.55)}
+    .menu-preview{background:rgba(var(--primary-rgb),0.08);border-radius:18px;padding:1rem;border:1px solid rgba(var(--primary-rgb),0.2);margin-bottom:1rem;display:flex;flex-direction:column;gap:0.65rem}
+    .menu-preview img{max-height:180px;width:100%;object-fit:contain;border-radius:14px;box-shadow:0 14px 32px rgba(15,23,42,0.22)}
+    .menu-preview .preview-note{display:flex;align-items:center;gap:0.45rem;font-size:0.85rem}
+    .menu-preview .preview-note i{width:18px;height:18px}
+    .form-actions{display:flex;flex-wrap:wrap;gap:0.7rem;margin-top:0.6rem}
+    .btn.primary{background:var(--primary);color:#fff;padding:0.9rem 1.3rem;border-radius:16px;border:none;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;font-weight:600;cursor:pointer;box-shadow:0 18px 36px rgba(var(--primary-rgb),0.32);transition:transform 0.22s ease,box-shadow 0.22s ease;flex:1 1 auto;min-width:120px}
+    .btn.primary:hover{transform:translateY(-3px);box-shadow:0 22px 44px rgba(var(--primary-rgb),0.4)}
+    .btn.primary i{width:18px;height:18px}
+    .btn.ghost{background:rgba(15,23,42,0.05);color:var(--muted);border:1px solid rgba(15,23,42,0.14);padding:0.9rem 1.3rem;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;font-weight:500;cursor:pointer;transition:all 0.2s ease;flex:1 1 auto;min-width:100px}
+    .btn.ghost:hover{color:var(--primary);border-color:rgba(var(--primary-rgb),0.45);background:rgba(var(--primary-rgb),0.1)}
+    .btn.ghost i{width:18px;height:18px}
+    @media(min-width:640px){.menu-toolbar input{flex:1 1 300px}.menu-toolbar select{flex:0 0 200px}.toolbar-actions{width:auto;margin-top:0;margin-left:auto}}
+    @media(min-width:768px){.admin-panel{width:90%;padding:2rem}.admin-items{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}}
+    @media(min-width:1024px){.admin-panel{max-width:1200px;width:95%;padding:2.5rem 3rem}.admin-items{gap:1.8rem}}
+    @media(max-width:480px){.admin-panel h2{font-size:1.5rem;margin-bottom:1rem}.fab{padding:0.8rem 1rem;bottom:1rem;right:1rem}.fab span{display:none}.menu-toolbar{padding:0.8rem}.btn-pill{font-size:0.85rem;padding:0.6rem 0.8rem}.modal .modal-container{padding:1.2rem;width:98%}.modal-header{flex-direction:column;align-items:flex-start}.icon-circle{width:42px;height:42px;min-width:42px}}
+  </style>
+</head>
+<body class="admin-page">
+  <nav class="navbar">
+    <a href="index.html" class="navbar-logo">kenangan<span>senja</span>.</a>
+    <div class="navbar-extra"></div>
+  </nav>
+
+  <main class="admin-panel">
+    <h2>Manajemen Menu Kopi</h2>
+    <!-- Controls: search/sort/import/export -->
+  <div class="menu-form menu-toolbar">
+      <input type="text" id="search" placeholder="Cari nama kopi..." />
+  <label for="sort" class="hidden" aria-hidden="true">Urutkan</label>
+  <select id="sort" title="Urutkan daftar menu">
+        <option value="name-asc">Nama A-Z</option>
+        <option value="name-desc">Nama Z-A</option>
+        <option value="price-asc">Harga termurah</option>
+        <option value="price-desc">Harga termahal</option>
+      </select>
+  <div class="toolbar-actions">
+        <button id="btn-export" class="btn btn-outline" type="button">Export JSON</button>
+  <label class="btn btn-outline import-label" for="import-file">Import JSON</label>
+  <input id="import-file" type="file" accept="application/json" class="hidden" />
+      </div>
+    </div>
+
+    <!-- Add Menu via Icon (FAB) -> opens modal with full form -->
+    <div id="admin-items" class="admin-items"></div>
+  </main>
+
+  <!-- Floating Add Button -->
+  <button id="fab-add" title="Tambah Produk" class="fab">
+    <i data-feather="plus"></i>
+    <span>Produk Baru</span>
+  </button>
+
+  <!-- Modal: Add Menu -->
+  <div class="modal" id="add-modal" aria-modal="true" role="dialog">
+    <div class="modal-container">
+      <a href="#" class="close-icon" id="add-close" aria-label="Tutup" title="Tutup"><i data-feather="x"></i></a>
+      <div class="modal-content">
+        <div class="modal-col">
+          <div class="modal-header">
+            <div class="icon-circle"><i data-feather="coffee"></i></div>
+            <div>
+              <h3>Tambah Menu Baru</h3>
+              <p class="modal-subtitle">Lengkapi informasi produk dan unggah foto terbaiknya.</p>
+            </div>
+          </div>
+          <div class="menu-preview hidden" id="preview-box">
+            <img id="preview-img" src="" alt="Preview Gambar" />
+            <div class="muted-note preview-note"><i data-feather="image"></i> Preview akan muncul otomatis saat gambar dipilih.</div>
+          </div>
+          <form class="menu-form" id="menu-form">
+            <div class="field">
+              <label for="menu-name">Nama Menu</label>
+              <input type="text" id="menu-name" placeholder="Contoh: Caramel Latte" required />
+            </div>
+            <div class="field">
+              <label for="menu-price">Harga (Rp)</label>
+              <input type="number" id="menu-price" placeholder="Contoh: 18000" required />
+            </div>
+            <div class="field">
+              <label for="menu-img">URL Gambar (opsional)</label>
+              <input type="text" id="menu-img" placeholder="https://..." />
+            </div>
+            <div class="field">
+              <label for="menu-file" class="dropzone-label">Upload Gambar (opsional)</label>
+              <div class="dropzone" id="dropzone">
+                <i data-feather="upload-cloud"></i>
+                <span>Seret & letakkan gambar di sini atau klik untuk memilih.</span>
+              </div>
+              <input type="file" id="menu-file" accept="image/*" class="hidden" />
+            </div>
+            <div class="form-actions">
+              <button class="btn primary" type="submit"><i data-feather="save"></i><span>Simpan Menu</span></button>
+              <button class="btn ghost" type="button" id="btn-reset-form"><i data-feather="rotate-ccw"></i><span>Reset</span></button>
+            </div>
+            <small class="muted-note">Jika memilih file gambar, file tersebut diprioritaskan dan disimpan secara lokal untuk demo.</small>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    feather.replace();
+    // Theme init/toggle (independent of script.js so this page works standalone)
+    function applyTheme(theme){
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('kk_theme', theme);
+    }
+    (function initTheme(){
+      const saved = localStorage.getItem('kk_theme') || 'light';
+      applyTheme(saved);
+    })();
+    const user = JSON.parse(localStorage.getItem('kk_user')||'null');
+    const role = (user && typeof user.role === 'string') ? user.role.toLowerCase() : '';
+
+    if(role !== 'admin'){
+      alert('Akses ditolak. Hanya admin.');
+      window.location.href = 'menu-member.html';
+    } else {
+      initAdminDashboard(user, role);
+    }
+
+    function initAdminDashboard(user, role){
+      (function(){
+        const API_BASE = (function(){
+          try{ const stored = localStorage.getItem('kk_api_base'); if(stored) return stored; }catch(_e){}
+          const host = location.hostname || '127.0.0.1';
+          const isPrivateHost = host==='localhost' || host==='127.0.0.1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+          const hasHttpOrigin = location.origin && !location.origin.startsWith('file://');
+          if(hasHttpOrigin){
+            if(isPrivateHost && location.port && location.port !== '8000') return `http://${host}:8000`;
+            return location.origin;
+          }
+          return `http://${host}:8000`;
+        })();
+        const MENU_KEY='kk_menu_items';
+        const localGet=()=>{try{return JSON.parse(localStorage.getItem(MENU_KEY)||'[]')}catch(e){return []}};
+        const localSave=(items)=>localStorage.setItem(MENU_KEY,JSON.stringify(items));
+        async function apiGet(){
+          try {
+            const res = await fetch(`${API_BASE}/api/products?active=false`);
+            if(!res.ok) throw new Error('http '+res.status);
+            const data = await res.json();
+            return data.map(p=>({ id:p.id, name:p.name, price:p.price, img:p.image_url || 'img/menu/1.jpg' }));
+          } catch(_){ return localGet(); }
+        }
+        async function apiAdd(d){
+          const current = JSON.parse(localStorage.getItem('kk_user')||'null');
+          const token = current && current.token;
+          try {
+            const res = await fetch(`${API_BASE}/api/products`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`}, body: JSON.stringify({ name:d.name, price:Number(d.price), description:'' }) });
+            if(!res.ok) throw new Error('http '+res.status);
+            const p = await res.json();
+            return { id:p.id, name:p.name, price:p.price, img:'img/menu/1.jpg' };
+          } catch(_){
+            const items=localGet(); const n={id:Date.now(), name:d.name, price:Number(d.price), img:d.img||'img/menu/1.jpg'}; items.push(n); localSave(items); return n;
+          }
+        }
+        async function apiUpdate(id, d){
+          const current = JSON.parse(localStorage.getItem('kk_user')||'null');
+          const token = current && current.token;
+          try {
+            const res = await fetch(`${API_BASE}/api/products/${encodeURIComponent(id)}`, { method:'PUT', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`}, body: JSON.stringify({ name:d.name, price:Number(d.price) }) });
+            if(!res.ok) throw new Error('http '+res.status);
+            const p = await res.json();
+            return { id:p.id, name:p.name, price:p.price, img:'img/menu/1.jpg' };
+          } catch(_){
+            const items=localGet(); const i=items.findIndex(x=>String(x.id)===String(id)); if(i>-1){ items[i]={...items[i], ...d}; localSave(items); return items[i]; } return null;
+          }
+        }
+        async function apiRemove(id){
+          const current = JSON.parse(localStorage.getItem('kk_user')||'null');
+          const token = current && current.token;
+          try { const res = await fetch(`${API_BASE}/api/products/${encodeURIComponent(id)}`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} }); if(!res.ok) throw new Error('http '+res.status); }
+          catch(_){ let items=localGet(); items = items.filter(x=>String(x.id)!==String(id)); localSave(items); }
+        }
+        window.KKMenuAPI = { get: apiGet, add: apiAdd, update: apiUpdate, remove: apiRemove, save: (items)=>localSave(items) };
+      })();
+
+      const listEl = document.getElementById('admin-items');
+      const searchEl = document.getElementById('search');
+      const sortEl = document.getElementById('sort');
+      const previewBox = document.getElementById('preview-box');
+      const previewImg = document.getElementById('preview-img');
+      const fileInput = document.getElementById('menu-file');
+      const dropzone = document.getElementById('dropzone');
+      const urlInput = document.getElementById('menu-img');
+      const resetBtn = document.getElementById('btn-reset-form');
+      const MAX_FILE_SIZE = 1024 * 1024; // 1MB
+      const COMPRESS_THRESHOLD = 400 * 1024; // 400KB
+      function formatPrice(p){return 'IDR '+Math.round(Number(p||0)/1000)+'K'}
+      function sorted(items){
+        const v = sortEl.value;
+        const arr = items.slice();
+        if(v==='name-asc') arr.sort((a,b)=>a.name.localeCompare(b.name));
+        if(v==='name-desc') arr.sort((a,b)=>b.name.localeCompare(a.name));
+        if(v==='price-asc') arr.sort((a,b)=>Number(a.price)-Number(b.price));
+        if(v==='price-desc') arr.sort((a,b)=>Number(b.price)-Number(a.price));
+        return arr;
+      }
+      async function renderAdmin(){
+        const q = (searchEl.value||'').toLowerCase();
+        const base = await window.KKMenuAPI.get();
+        const filtered = base.filter(i=> (i.name||'').toLowerCase().includes(q));
+        const items = sorted(filtered);
+        listEl.innerHTML = items.map(item => {
+          const shortId = String(item.id||'').slice(0,8).toUpperCase() || 'BARU';
+          return `
+            <article class="admin-item" data-id="${item.id}">
+              <div class="admin-thumb">
+                <img src="${item.img || 'img/menu/1.jpg'}" alt="${item.name}" />
+                <span class="admin-price-pill">${formatPrice(item.price)}</span>
+              </div>
+              <div class="admin-item-body">
+                <div>
+                  <h4>${item.name}</h4>
+                  <p class="admin-item-subtitle">Kode menu • #${shortId}</p>
+                </div>
+                <span class="chip">#${shortId}</span>
+              </div>
+              <div class="admin-item-actions">
+                <button type="button" class="btn-pill edit"><i data-feather="edit-3"></i><span>Edit</span></button>
+                <button type="button" class="btn-pill detail"><i data-feather="external-link"></i><span>Detail</span></button>
+                <button type="button" class="btn-pill danger delete"><i data-feather="trash-2"></i><span>Hapus</span></button>
+              </div>
+            </article>`;
+        }).join('');
+        if(window.feather){ window.feather.replace(); }
+      }
+
+      function showPreview(src){
+        if(!previewBox || !previewImg) return;
+        if(!src){
+          previewBox.classList.add('hidden');
+          previewImg.src = '';
+          return;
+        }
+        previewImg.src = src;
+        previewBox.classList.remove('hidden');
+      }
+
+      async function fileToDataUrl(file){
+        return await new Promise((resolve, reject)=>{
+          const reader = new FileReader();
+          reader.onload = ()=> resolve(reader.result);
+          reader.onerror = ()=> reject(new Error('Gagal membaca file.'));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function compressImage(file){
+        // TODO: implement actual compression if needed.
+        return await fileToDataUrl(file);
+      }
+
+      if(fileInput){
+        fileInput.addEventListener('change', ()=>{
+          const f = fileInput.files[0];
+          if(!f){showPreview(urlInput.value.trim());return;}
+          if(!f.type.startsWith('image/')){ alert('File harus gambar.'); fileInput.value=''; return; }
+          if(f.size > MAX_FILE_SIZE){ alert('Ukuran gambar maksimal 1MB.'); fileInput.value=''; return; }
+          const reader = new FileReader();
+          reader.onload = ()=> showPreview(reader.result);
+          reader.readAsDataURL(f);
+        });
+      }
+
+      if(dropzone){
+        dropzone.addEventListener('click', ()=> fileInput && fileInput.click());
+        ;['dragenter','dragover'].forEach(ev=> dropzone.addEventListener(ev, e=>{e.preventDefault();dropzone.classList.add('dragover');}));
+        ;['dragleave','drop'].forEach(ev=> dropzone.addEventListener(ev, e=>{e.preventDefault();dropzone.classList.remove('dragover');}));
+        dropzone.addEventListener('drop', e=>{
+          const dt = e.dataTransfer;
+          if(!dt || !dt.files || !dt.files[0]) return;
+          const f = dt.files[0];
+          if(!f.type.startsWith('image/')){ alert('File bukan gambar.'); return; }
+          if(f.size > MAX_FILE_SIZE){ alert('Ukuran gambar terlalu besar (>1MB).'); return; }
+          if(fileInput){ fileInput.files = dt.files; }
+          const reader = new FileReader();
+          reader.onload = ()=> showPreview(reader.result);
+          reader.readAsDataURL(f);
+        });
+      }
+
+      if(urlInput){
+        urlInput.addEventListener('input', ()=>{
+          if(fileInput && fileInput.files[0]) return;
+          const val = urlInput.value.trim();
+          if(val){showPreview(val);} else {showPreview(null);} 
+        });
+      }
+
+      if(resetBtn){
+        resetBtn.addEventListener('click', ()=>{
+          const form = document.getElementById('menu-form');
+          if(form) form.reset();
+          if(fileInput) fileInput.value='';
+          if(urlInput) urlInput.value='';
+          if(dropzone) dropzone.classList.remove('dragover');
+          showPreview(null);
+        });
+      }
+
+      const formEl = document.getElementById('menu-form');
+      if(formEl){
+        formEl.addEventListener('submit', async e => {
+        e.preventDefault();
+        const name = document.getElementById('menu-name').value.trim();
+        const price = document.getElementById('menu-price').value;
+        const imgUrl = document.getElementById('menu-img').value.trim();
+        const fileEl = document.getElementById('menu-file');
+        const file = fileEl.files[0];
+
+        if(!name){ alert('Nama wajib diisi'); return; }
+        if(!price || isNaN(Number(price))){ alert('Harga tidak valid'); return; }
+
+        const resetForm = () => {
+          e.target.reset();
+          if(fileEl) fileEl.value = '';
+          if(urlInput) urlInput.value = '';
+          if(dropzone) dropzone.classList.remove('dragover');
+          showPreview(null);
+          const modalEl = document.getElementById('add-modal');
+          if(modalEl) modalEl.style.display = 'none';
+        };
+
+        try {
+          // Create product via API
+          const user = JSON.parse(localStorage.getItem('user') || 'null');
+          const token = user && user.token;
+          
+          const createRes = await fetch(`${API_BASE}/api/products`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ name, price: Number(price), is_active: true })
+          });
+          
+          if(!createRes.ok){
+            throw new Error('Gagal membuat produk. Kode: ' + createRes.status);
+          }
+          
+          const newProduct = await createRes.json();
+          const productId = newProduct.id;
+
+          // Upload image if file selected
+          if(file){
+            if(!file.type.startsWith('image/')){ alert('File harus gambar.'); return; }
+            if(file.size > MAX_FILE_SIZE){ alert('Ukuran gambar maksimal 1MB.'); return; }
+            
+            const fd = new FormData();
+            fd.append('file', file, file.originalname || file.name);
+            
+            const imgRes = await fetch(`${API_BASE}/api/products/${encodeURIComponent(productId)}/images`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${token}` },
+              body: fd
+            });
+            
+            if(!imgRes.ok){
+              console.warn('Upload gambar gagal', imgRes.status);
+              // not fatal — product already created
+            }
+          }
+
+          alert('Produk berhasil ditambahkan!');
+          resetForm();
+          await renderAdmin();
+        } catch(err){
+          alert('Gagal menambahkan produk: '+ err.message);
+        }
+      });
+      }
+
+      listEl.addEventListener('click', async e => {
+          const itemDiv = e.target.closest('.admin-item');
+          if(!itemDiv) return;
+          const actionBtn = e.target.closest('button');
+          if(!actionBtn) return;
+          const id = itemDiv.dataset.id;
+          if(actionBtn.classList.contains('delete')){
+            if(confirm('Hapus item?')){ await window.KKMenuAPI.remove(id); await renderAdmin(); }
+          }
+          if(actionBtn.classList.contains('edit')){
+            const current = { id, name: itemDiv.querySelector('h4')?.textContent || '', price: Number((itemDiv.querySelector('.price')?.textContent||'').replace(/\D/g,'')) };
+            const newName = prompt('Nama baru:', current.name) || current.name;
+            const newPriceRaw = prompt('Harga baru (angka):', current.price) || current.price;
+            const newPrice = Number(newPriceRaw);
+            await window.KKMenuAPI.update(id,{name:newName,price:newPrice});
+            await renderAdmin();
+          }
+          if(actionBtn.classList.contains('detail')){
+            window.location.href = `coffee.html?id=${encodeURIComponent(id)}`;
+          }
+      });
+
+      window.addEventListener('storage', ()=> renderAdmin());
+      searchEl.addEventListener('input', renderAdmin);
+      sortEl.addEventListener('change', renderAdmin);
+
+      const fab = document.getElementById('fab-add');
+      const modal = document.getElementById('add-modal');
+      const closeBtn = document.getElementById('add-close');
+      if(fab && modal){
+        fab.addEventListener('click', ()=>{ modal.style.display = 'flex'; });
+        window.addEventListener('click', (e)=>{ if(e.target===modal){ modal.style.display='none'; }});
+      }
+      if(closeBtn && modal){
+        closeBtn.addEventListener('click', (e)=>{ e.preventDefault(); modal.style.display='none'; });
+      }
+
+      document.getElementById('btn-export').addEventListener('click', async ()=>{
+        const data = JSON.stringify(await window.KKMenuAPI.get(), null, 2);
+        const blob = new Blob([data], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'menu-export.json'; a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      document.getElementById('import-file').addEventListener('change', async (e)=>{
+        const file = e.target.files[0];
+        if(!file) return; const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const parsed = JSON.parse(reader.result);
+            if(Array.isArray(parsed)){
+              window.KKMenuAPI.save(parsed);
+              await renderAdmin();
+              alert('Import berhasil.');
+            } else { alert('Format tidak valid. Harus array JSON.'); }
+          } catch(err){ alert('Gagal membaca JSON: '+err.message); }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      renderAdmin();
+    }
+  </script>
+</body>
+</html>

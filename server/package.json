@@ -1,0 +1,23 @@
+{
+  "name": "kedai-kopi-server",
+  "version": "0.1.0",
+  "description": "Backend API for Kedai Kopi Kenangan Senja",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@xmpp/client": "^0.14.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "googleapis": "^169.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
+    "mysql2": "^3.16.0",
+    "uuid": "^13.0.0"
+  }
+}

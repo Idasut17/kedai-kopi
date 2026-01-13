@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Menu Member - Kenangan Senja</title>
+	<link rel="stylesheet" href="css/style.css" />
+		<script src="https://unpkg.com/feather-icons"></script>
+		<style>
+		body.member-page{min-height:100vh;padding-top:5.8rem;background:linear-gradient(150deg,rgba(var(--primary-rgb),0.12) 0%,rgba(15,23,42,0.08) 45%,var(--bg) 100%)}
+		.member-wrap{max-width:1120px;margin:6.6rem auto 5rem;padding:0 1.6rem;display:flex;flex-direction:column;gap:1.8rem}
+		.member-wrap h2{font-size:2.4rem;text-align:center;margin:0;font-weight:600;letter-spacing:.8px}
+		.member-wrap h2 span{color:var(--primary)}
+		.member-intro{margin:0 auto;text-align:center;max-width:520px;color:var(--muted);font-size:.96rem;line-height:1.6}
+		.toolbar{display:flex;flex-wrap:wrap;gap:.9rem;align-items:center;background:rgba(var(--primary-rgb),0.08);border:1px solid rgba(var(--primary-rgb),0.2);border-radius:22px;padding:1rem 1.3rem;box-shadow:0 18px 46px rgba(15,23,42,0.1);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+		.toolbar input,.toolbar select{flex:1 1 220px;padding:.75rem 1rem;border:1px solid transparent;border-radius:16px;background:rgba(255,255,255,0.92);font-size:.95rem;box-shadow:inset 0 1px 2px rgba(15,23,42,0.08);transition:border-color .2s ease,box-shadow .2s ease}
+		.toolbar input:focus,.toolbar select:focus{outline:none;border-color:rgba(var(--primary-rgb),0.7);box-shadow:0 0 0 3px rgba(var(--primary-rgb),0.22)}
+		.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.6rem;margin-top:.5rem}
+		.menu-card{position:relative;border-radius:24px;background:linear-gradient(160deg,rgba(var(--primary-rgb),0.18),rgba(15,23,42,0.06));border:1px solid rgba(var(--primary-rgb),0.22);box-shadow:0 26px 56px rgba(15,23,42,0.18);cursor:pointer;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease;display:flex;flex-direction:column}
+		.menu-card::after{content:"";position:absolute;inset:1px;border-radius:22px;background:var(--card);z-index:0}
+		.menu-card>*{position:relative;z-index:1}
+		.menu-card:hover{transform:translateY(-8px);box-shadow:0 34px 68px rgba(15,23,42,0.22)}
+		.menu-card-media{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:22px 22px 18px 18px;background:rgba(15,23,42,0.06)}
+		.menu-card-img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;display:block}
+		.menu-card:hover .menu-card-img{transform:scale(1.06)}
+		.menu-card-pricepill{position:absolute;left:1.1rem;bottom:1.1rem;padding:.45rem .9rem;border-radius:999px;background:rgba(15,23,42,0.82);color:#fff;font-weight:600;font-size:.9rem;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 12px 24px rgba(15,23,42,0.35)}
+		.menu-card-action{position:absolute;right:1.1rem;bottom:1.1rem;width:42px;height:42px;border-radius:14px;border:none;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 16px 34px rgba(var(--primary-rgb),0.4);cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
+		.menu-card-action:hover{transform:translateY(-3px);box-shadow:0 20px 40px rgba(var(--primary-rgb),0.48)}
+		.menu-card-action i{width:20px;height:20px}
+		.menu-card-body{padding:1.4rem 1.5rem 1.6rem;display:flex;flex-direction:column;gap:.6rem}
+		.menu-card-title{margin:0;font-size:1.2rem;font-weight:600;letter-spacing:.45px}
+		.menu-card-note{margin:0;color:var(--muted);font-size:.92rem;line-height:1.5}
+		.empty{padding:2rem;border:1px dashed rgba(var(--primary-rgb),0.35);border-radius:18px;color:var(--muted);text-align:center;background:rgba(var(--primary-rgb),0.06);box-shadow:0 12px 28px rgba(15,23,42,0.08);margin-top:2rem}
+		.hidden{display:none}
+		@media(max-width:920px){.member-wrap{margin:6rem auto 4rem}.toolbar{flex-direction:column;align-items:stretch}.menu-card-body{padding:1.2rem 1.3rem 1.4rem}}
+		@media(max-width:560px){.member-wrap{padding:0 1.2rem}.grid{grid-template-columns:1fr}.menu-card-action{width:40px;height:40px}}
+	</style>
+</head>
+<body class="member-page">
+	<nav class="navbar">
+		<a href="index.html" class="navbar-logo">kenangan<span>senja</span>.</a>
+		<div class="navbar-extra"></div>
+	</nav>
+
+	<main class="member-wrap">
+		<h2><span>Menu</span> Member</h2>
+		<p class="member-intro">Temukan pilihan kopi kenangan dalam tampilan baru yang rapi. Cari rasa favoritmu atau urutkan berdasarkan harga untuk menemukan racikan terbaik.</p>
+		<div class="toolbar" role="region" aria-label="Filter menu member">
+			<input id="q" type="text" placeholder="Cari kopi..." aria-label="Cari" />
+			<select id="sort" aria-label="Urutkan">
+				<option value="name-asc">Nama A-Z</option>
+				<option value="name-desc">Nama Z-A</option>
+				<option value="price-asc">Harga termurah</option>
+				<option value="price-desc">Harga termahal</option>
+			</select>
+		</div>
+
+		<div id="list" class="grid" aria-live="polite"></div>
+		<div id="empty" class="empty hidden">Belum ada menu. Coba lagi beberapa saat atau hubungi admin.</div>
+	</main>
+
+	<!-- Contact Section start -->
+	<section id="contact" class="contact" style="margin-top:4rem;">
+		<h2><span>Kontak</span> Kami</h2>
+		<p id="contact-desc">Hubungi kami untuk informasi lebih lanjut atau kunjungi lokasi kami.</p>
+
+		<div class="contact-info" id="contact-info"></div>
+
+		<div class="row">
+			<iframe
+				src="about:blank"
+				allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="map"></iframe>
+
+			<form action="">
+				<div class="input-group">
+					<i data-feather="message-square"></i>
+					<textarea id="contact-message" placeholder="Tulis pesan untuk dikirim via WhatsApp" rows="3"></textarea>
+				</div>
+				<button type="button" class="btn" id="contact-wa-btn">Kirim ke WhatsApp</button>
+			</form>
+		</div>
+	</section>
+	<!-- Contact Section end -->
+
+		<script src="js/auth-ui.js"></script>
+			<script type="module" src="js/cart.js"></script>
+			<script>
+		// Theme init/toggle
+		function applyTheme(theme){document.documentElement.setAttribute('data-theme',theme);localStorage.setItem('kk_theme',theme);} 
+		(function initTheme(){const saved=localStorage.getItem('kk_theme')||'light';applyTheme(saved);const t=document.getElementById('theme-toggle');if(t){t.addEventListener('click',e=>{e.preventDefault();const c=document.documentElement.getAttribute('data-theme')||'light';applyTheme(c==='light'?'dark':'light');});}})();
+
+		feather.replace();
+
+		const API_BASE = (function(){
+			try{ const stored = localStorage.getItem('kk_api_base'); if(stored) return stored; }catch(_e){}
+			const host = location.hostname || '127.0.0.1';
+			const isPrivateHost = host==='localhost' || host==='127.0.0.1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+			const hasHttpOrigin = location.origin && !location.origin.startsWith('file://');
+			if(hasHttpOrigin){
+				if(isPrivateHost && location.port && location.port !== '8000') return `http://${host}:8000`;
+				return location.origin;
+			}
+			return `http://${host}:8000`;
+		})();
+
+		const listEl = document.getElementById('list');
+		const emptyEl = document.getElementById('empty');
+		const qEl = document.getElementById('q');
+		const sortEl = document.getElementById('sort');
+
+		function formatPrice(p){return 'IDR ' + Math.round(Number(p||0)/1000)+'K'}
+		function localGet(){try{return JSON.parse(localStorage.getItem('kk_menu_items')||'[]')}catch(e){return []}}
+
+		async function fetchProducts(){
+			try{
+				const r = await fetch(`${API_BASE}/api/products?active=true`);
+				if(!r.ok) throw new Error('http '+r.status);
+				const data = await r.json();
+				return data.map(p=>({ id:p.id, name:p.name, price:p.price, img:p.image_url || 'img/menu/1.jpg' }));
+			}catch(_){
+				return localGet();
+			}
+		}
+
+		function sorted(items){
+			const v = sortEl.value;
+			const arr = items.slice();
+			if(v==='name-asc') arr.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+			if(v==='name-desc') arr.sort((a,b)=> (b.name||'').localeCompare(a.name||''));
+			if(v==='price-asc') arr.sort((a,b)=> Number(a.price)-Number(b.price));
+			if(v==='price-desc') arr.sort((a,b)=> Number(b.price)-Number(a.price));
+			return arr;
+		}
+
+			function renderList(items){
+			if(!items.length){ listEl.innerHTML=''; emptyEl.style.display='block'; return; }
+			emptyEl.style.display='none';
+				listEl.innerHTML = items.map(item=>`
+				<article class="menu-card" data-id="${item.id}" title="Lihat detail">
+					<div class="menu-card-media">
+						<img src="${item.img || 'img/menu/1.jpg'}" alt="${item.name}" class="menu-card-img" loading="lazy" />
+						<span class="menu-card-pricepill">${formatPrice(item.price)}</span>
+						<button type="button" class="menu-card-action add-cart" aria-label="Tambah ${item.name} ke keranjang" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}">
+							<i data-feather="shopping-cart"></i>
+						</button>
+					</div>
+					<div class="menu-card-body">
+						<h3 class="menu-card-title">${item.name}</h3>
+						<p class="menu-card-note">Signature blend yang diseduh hangat untuk menemani senja Anda.</p>
+					</div>
+				</article>
+			`).join('');
+			if(window.feather) feather.replace();
+				// Bind add-to-cart
+				document.querySelectorAll('.add-cart').forEach(btn=>{
+					btn.addEventListener('click', e=>{
+						e.preventDefault();
+						e.stopPropagation();
+						import('./js/cart.js').then(m=>{
+							m.addToCart(btn.getAttribute('data-id'), btn.getAttribute('data-name'), Number(btn.getAttribute('data-price')), 1);
+						});
+					});
+				});
+		}
+
+		async function reload(){
+			const base = await fetchProducts();
+			const query = (qEl.value||'').toLowerCase();
+			const filtered = base.filter(i=> (i.name||'').toLowerCase().includes(query));
+			renderList(sorted(filtered));
+		}
+
+		listEl.addEventListener('click', (e)=>{
+			const card = e.target.closest('.menu-card');
+			if(!card) return; const id = card.getAttribute('data-id');
+			if(id){ window.location.href = `coffee.html?id=${encodeURIComponent(id)}`; }
+		});
+
+		qEl.addEventListener('input', reload);
+		sortEl.addEventListener('change', reload);
+		window.addEventListener('storage', reload);
+
+		reload();
+	</script>
+
+	<script>
+		// Load map and contact from database
+		async function loadContactAndMap() {
+			try {
+				const token = localStorage.getItem('token') || (JSON.parse(localStorage.getItem('kk_user') || '{}').token);
+				const response = await fetch(`${API_BASE}/api/settings/site_profile`, {
+					headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+				});
+				
+				if (response.ok) {
+					const data = await response.json();
+					const profile = data.value || data || {};
+					if (profile.mapUrl) {
+						const mapIframe = document.querySelector('.contact .map');
+						if (mapIframe) {
+							mapIframe.src = profile.mapUrl;
+						}
+					}
+					const infoEl = document.getElementById('contact-info');
+					const descEl = document.getElementById('contact-desc');
+					const waBtn = document.getElementById('contact-wa-btn');
+					if(descEl){
+						descEl.textContent = profile.address ? `Kunjungi kami di ${profile.address} atau hubungi kontak berikut.` : 'Hubungi kami untuk informasi lebih lanjut atau kunjungi lokasi kami.';
+					}
+					if(infoEl){
+						const items = [
+							{icon:'phone', label:'Telepon', value: profile.phone},
+							{icon:'mail', label:'Email', value: profile.email},
+							{icon:'message-circle', label:'WhatsApp', value: profile.whatsapp},
+							{icon:'map-pin', label:'Alamat', value: profile.address}
+						].filter(i=>i.value);
+						infoEl.innerHTML = items.length ? items.map(i=>`
+							<div class="info-item">
+								<i data-feather="${i.icon}"></i>
+								<div>
+									<strong>${i.label}</strong>
+									<span>${i.value}</span>
+								</div>
+							</div>
+						`).join('') : '<div class="info-item">Kontak belum disetel admin.</div>';
+						if(window.feather) feather.replace();
+					}
+					if(waBtn){
+						waBtn.setAttribute('data-wa', (profile.whatsapp||''));
+					}
+				}
+			} catch (error) {
+				console.error('Error loading contact/map:', error);
+			}
+		}
+
+		// Load contact + map when page loads
+		window.addEventListener('DOMContentLoaded', () => {
+			loadContactAndMap();
+			const btn = document.getElementById('contact-wa-btn');
+			const msgInput = document.getElementById('contact-message');
+			btn?.addEventListener('click', () => {
+				const waNumber = btn.getAttribute('data-wa') || '';
+				if(!waNumber){
+					alert('Nomor WhatsApp belum disetel admin.');
+					return;
+				}
+				const msg = (msgInput && msgInput.value.trim()) || 'Halo, saya ingin bertanya tentang produk.';
+				const url = `https://wa.me/${waNumber.replace(/[^\d]/g,'')}?text=${encodeURIComponent(msg)}`;
+				window.open(url, '_blank');
+			});
+		});
+	</script>
+</body>
+</html>
+
